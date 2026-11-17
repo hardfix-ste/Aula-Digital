@@ -1,16 +1,34 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aula Digital</title>
 <style>
-:root{--bg:#f5f6fa;--card:#fff;--tx:#1c2333;--mut:#6b7385;--pr:#2f5bea;--bd:#e1e4ee}
-@media(prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b202b;--tx:#e8ebf2;--mut:#98a0b3;--pr:#6f93ff;--bd:#2c3342}}
-*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:var(--bg);color:var(--tx)}
-nav{display:flex;gap:4px;flex-wrap:wrap;padding:10px;background:var(--card);border-bottom:1px solid var(--bd);align-items:center}
-nav button{background:none;border:0;color:var(--tx);padding:8px 12px;border-radius:8px;cursor:pointer}nav button.on{background:var(--pr);color:#fff}
-main{max-width:1000px;margin:auto;padding:16px}.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px;overflow-x:auto}
-input,select,textarea,button.b{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}textarea{width:100%;min-height:110px}
-button.b{background:var(--pr);color:#fff;border:0;cursor:pointer}button.g{background:none;color:var(--pr)}
-table{border-collapse:collapse;width:100%}td,th{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left}.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.bar{background:var(--pr);height:14px;border-radius:4px}.out{white-space:pre-wrap}.hi{color:#d33;font-weight:600}.mut{color:var(--mut)}
-#login{max-width:320px;margin:15vh auto}#login input{width:100%;margin-bottom:8px}.cell{cursor:pointer;min-width:90px;font-size:12px}
+:root{--bg:#f3f4fb;--card:#fff;--tx:#1e2235;--mut:#7a8099;--pr:#5b5bf0;--pr2:#8a5cf6;--bd:#e6e8f3;--in:#f7f8fd;--sh:0 4px 20px rgba(60,70,140,.08)}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1220;--card:#181c2e;--tx:#e9ebf6;--mut:#8f96b3;--pr:#7c7cff;--pr2:#a37dff;--bd:#272c44;--in:#12162a;--sh:0 4px 20px rgba(0,0,0,.3)}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx)}
+.layout{display:flex;min-height:100vh}
+aside{width:236px;flex:none;background:linear-gradient(180deg,#2b2d6e,#4a2fa0);color:#fff;padding:18px 12px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{font-size:19px;font-weight:700;padding:6px 10px 18px}.brand small{display:block;font-weight:400;font-size:12px;opacity:.7}
+nav{display:flex;flex-direction:column;gap:3px;flex:1;overflow:auto}
+nav button{background:none;border:0;color:#d9dcff;padding:10px 12px;border-radius:10px;cursor:pointer;text-align:left;font:inherit;transition:.15s}
+nav button:hover{background:rgba(255,255,255,.1)}nav button.on{background:#fff;color:#3b2fa0;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.user{padding:12px 10px;border-top:1px solid rgba(255,255,255,.15);font-size:13px}.user button{margin-top:8px;width:100%;background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:8px;padding:7px;cursor:pointer}
+.content{flex:1;min-width:0}header{padding:26px 28px 0}header h1{margin:0;font-size:26px;letter-spacing:-.5px}
+main{max-width:1060px;padding:18px 28px 40px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:var(--sh);overflow-x:auto}
+.card h3{margin:0 0 12px;font-size:17px}hr{border:0;border-top:1px solid var(--bd);margin:16px 0}
+input,select,textarea{font:inherit;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--in);color:var(--tx);outline:0;transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--pr);box-shadow:0 0 0 3px rgba(91,91,240,.18)}textarea{width:100%;min-height:120px;resize:vertical}
+button.b{font:inherit;font-weight:600;padding:10px 18px;border:0;border-radius:10px;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--pr),var(--pr2));box-shadow:0 4px 12px rgba(91,91,240,.35);transition:.15s}button.b:hover{transform:translateY(-1px)}
+button.g{background:none;border:0;color:var(--pr);cursor:pointer;font:inherit;padding:4px 8px;border-radius:6px}button.g:hover{background:var(--in)}
+table{border-collapse:collapse;width:100%}th{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:600}
+td,th{padding:10px;border-bottom:1px solid var(--bd);text-align:left}tr:hover td{background:var(--in)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.bar{background:linear-gradient(90deg,var(--pr),var(--pr2));height:12px;border-radius:99px;margin:4px 0 12px}
+.out{white-space:pre-wrap}.hi{color:#e5484d;font-weight:700}.mut{color:var(--mut)}
+.cell{cursor:pointer;min-width:100px;font-size:12px;border:1px dashed var(--bd);border-radius:8px}.cell:hover{background:var(--in)}
+.stat{font-size:34px;font-weight:700;background:linear-gradient(135deg,var(--pr),var(--pr2));-webkit-background-clip:text;color:transparent}
+body.auth{background:linear-gradient(135deg,#2b2d6e,#6a3fd6 55%,#c06cf0);display:grid;place-items:center;min-height:100vh}
+#login{width:min(380px,92vw);padding:34px;text-align:center}#login .logo{font-size:46px}#login h2{margin:6px 0 4px}#login input{width:100%;margin:6px 0}#login button{width:100%;margin-top:10px}
+#err{color:#e5484d;font-size:13px;min-height:18px;margin-top:8px}
+@media(max-width:760px){.layout{flex-direction:column}aside{width:100%;height:auto;position:static;padding:10px}nav{flex-direction:row;overflow-x:auto}nav button{white-space:nowrap}.user{display:none}header{padding:16px}main{padding:12px 16px}}
 </style></head><body><div id="app"></div><script>
 let T=localStorage.t,U=null;const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -18,18 +36,19 @@ const api=async(p,m='GET',b)=>{const r=await fetch('/api/'+p,{method:m,headers:{
  const d=await r.json().catch(()=>({}));if(r.status===401&&p!=='login'){logout();return}if(!r.ok)throw new Error(d.error||'Error');return d};
 const go=async f=>{try{await f()}catch(e){alert(e.message)}};
 const logout=()=>{localStorage.removeItem('t');T=null;login()};
-function login(){$('#app').innerHTML=`<div id="login" class="card"><h2>Aula Digital</h2><input id="u" placeholder="Usuario"><input id="p" type="password" placeholder="Contraseña"><button class="b" style="width:100%" id="go">Ingresar</button></div>`;
- const f=()=>go(async()=>{const d=await api('login','POST',{username:$('#u').value,password:$('#p').value});T=d.token;localStorage.t=T;U=d.user;shell()});
+function login(){document.body.className='auth';$('#app').innerHTML=`<div id="login" class="card"><div class="logo">🎓</div><h2>Aula Digital</h2><p class="mut">Ingresá con tu usuario</p><input id="u" placeholder="Usuario" autocomplete="username"><input id="p" type="password" placeholder="Contraseña" autocomplete="current-password"><button class="b" id="go">Ingresar</button><div id="err"></div></div>`;
+ const f=async()=>{$('#err').textContent='';try{const d=await api('login','POST',{username:$('#u').value.trim(),password:$('#p').value});T=d.token;localStorage.t=T;U=d.user;shell()}catch(e){$('#err').textContent=e.message==='Failed to fetch'||e instanceof SyntaxError?'No se pudo conectar con el servidor. Abrí http://localhost:3000 con "npm start" en marcha.':e.message}};
  $('#go').onclick=f;$('#p').onkeydown=e=>e.key==='Enter'&&f()}
 const V={dashboard:['Panel',dash],alumnos:['Alumnos',alumnos],asistencia:['Asistencia',asist],notas:['Notas',notas],horarios:['Horarios',horarios],ia:['IA docente',ia],materiales:['Materiales',mats],alertas:['Alertas',alertas],usuarios:['Usuarios',usuarios]};
-async function shell(){if(!U)U=await api('me');if(!U)return;
- $('#app').innerHTML=`<nav>${Object.entries(V).filter(([k])=>k!=='usuarios'||U.role==='admin').map(([k,v])=>`<button data-k="${k}">${v[0]}</button>`).join('')}<span style="flex:1"></span><span class="mut">${esc(U.name)}</span><button id="out">Salir</button></nav><main id="m"></main>`;
- document.querySelectorAll('nav [data-k]').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');go(V[b.dataset.k][1])});
+async function shell(){document.body.className='';if(!U)U=await api('me');if(!U)return;
+ const ic={dashboard:'📊',alumnos:'🧑‍🎓',asistencia:'✅',notas:'📝',horarios:'🗓️',ia:'✨',materiales:'📁',alertas:'🚨',usuarios:'🔑'};
+ $('#app').innerHTML=`<div class="layout"><aside><div class="brand">🎓 Aula Digital<small>Gestión escolar</small></div><nav>${Object.entries(V).filter(([k])=>k!=='usuarios'||U.role==='admin').map(([k,v])=>`<button data-k="${k}">${ic[k]}&nbsp; ${v[0]}</button>`).join('')}</nav><div class="user"><b>${esc(U.name)}</b><br><span style="opacity:.7">${U.role==='admin'?'Administrador':'Docente'}</span><button id="out">Cerrar sesión</button></div></aside><div class="content"><header><h1 id="ttl"></h1></header><main id="m"></main></div></div>`;
+ document.querySelectorAll('nav [data-k]').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#ttl').textContent=V[b.dataset.k][0];go(V[b.dataset.k][1])});
  $('#out').onclick=logout;document.querySelector('[data-k=dashboard]').click()}
 const courses=async()=>[...new Set((await api('students')).map(s=>s.course).filter(Boolean))];
 const opts=a=>a.map(x=>`<option>${esc(x)}</option>`).join('');
 async function dash(){const d=await api('dashboard');const gr=Object.entries(d.grades).map(([k,v])=>[k,+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2)]);
- $('#m').innerHTML=`<div class="card"><h3>Alumnos registrados: ${d.students}</h3></div><div class="card"><h3>Presentismo por curso (%)</h3>${d.attendance.map(a=>`<div>${esc(a.label)} — ${a.value}%<div class="bar" style="width:${a.value}%"></div></div>`).join('')||'<p class="mut">Sin datos aún</p>'}</div>
+ $('#m').innerHTML=`<div class="card"><div class="mut">Alumnos registrados</div><div class="stat">${d.students}</div></div><div class="card"><h3>Presentismo por curso (%)</h3>${d.attendance.map(a=>`<div>${esc(a.label)} — ${a.value}%<div class="bar" style="width:${a.value}%"></div></div>`).join('')||'<p class="mut">Sin datos aún</p>'}</div>
  <div class="card"><h3>Promedio por materia</h3>${gr.map(([k,v])=>`<div>${esc(k)} — ${v}<div class="bar" style="width:${v*10}%"></div></div>`).join('')||'<p class="mut">Sin datos aún</p>'}</div>`}
 async function alumnos(){const l=await api('students');
  $('#m').innerHTML=`<div class="card"><h3>Nuevo alumno</h3><div class="row"><input id="n" placeholder="Nombre y apellido"><input id="d" placeholder="DNI"><input id="c" placeholder="Curso (ej. 3°A)"></div>
