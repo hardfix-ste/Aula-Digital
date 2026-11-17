@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS schedule(id INTEGER PRIMARY KEY,teacher_id INT,subjec
 CREATE TABLE IF NOT EXISTS materials(id INTEGER PRIMARY KEY,user_id INT,title TEXT,type TEXT,content TEXT,created TEXT DEFAULT CURRENT_TIMESTAMP);`);
 if(!db.prepare('SELECT 1 FROM users').get())
   db.prepare('INSERT INTO users(username,pass,name,role) VALUES(?,?,?,?)').run(process.env.ADMIN_USER||'admin',bcrypt.hashSync(process.env.ADMIN_PASS||'cambiar123',10),'Administrador','admin');
+if(process.env.ADMIN_RESET==='1')db.prepare('UPDATE users SET pass=? WHERE username=?').run(bcrypt.hashSync(process.env.ADMIN_PASS||'cambiar123',10),process.env.ADMIN_USER||'admin');
 const app=express();app.use(express.json({limit:'5mb'}));app.use(express.static('public'));
 const wrap=f=>(q,s)=>{try{f(q,s)}catch(e){s.status(400).json({error:e.message})}};
 const auth=(q,s,n)=>{try{q.user=jwt.verify((q.headers.authorization||'').slice(7),SECRET);n()}catch{s.status(401).json({error:'Sesión inválida'})}};
@@ -88,4 +89,4 @@ app.get('/api/dashboard',(q,s)=>s.json({
   students:db.prepare('SELECT COUNT(*) n FROM students').get().n,
   attendance:db.prepare(`SELECT s.course label,ROUND(100.0*SUM(a.status='P')/COUNT(*),1) value FROM attendance a JOIN students s ON s.id=a.student_id GROUP BY s.course`).all(),
   grades:db.prepare('SELECT g.subject label,g.value,g.scale FROM grades g').all().reduce((m,g)=>{const n=num(g.value);if(n!=null){(m[g.subject]=m[g.subject]||[]).push(n)}return m},{})}));
-app.listen(process.env.PORT||3000,()=>console.log('Aula Digital en http://localhost:'+(process.env.PORT||3000)));
+app.listen(process.env.PORT||3000,()=>{console.log('Usuario admin:',process.env.ADMIN_USER||'admin');console.log('Aula Digital en http://localhost:'+(process.env.PORT||3000))});
