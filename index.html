@@ -1,0 +1,90 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aula Digital</title>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--tx:#1c2333;--mut:#6b7385;--pr:#2f5bea;--bd:#e1e4ee}
+@media(prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b202b;--tx:#e8ebf2;--mut:#98a0b3;--pr:#6f93ff;--bd:#2c3342}}
+*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+nav{display:flex;gap:4px;flex-wrap:wrap;padding:10px;background:var(--card);border-bottom:1px solid var(--bd);align-items:center}
+nav button{background:none;border:0;color:var(--tx);padding:8px 12px;border-radius:8px;cursor:pointer}nav button.on{background:var(--pr);color:#fff}
+main{max-width:1000px;margin:auto;padding:16px}.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px;overflow-x:auto}
+input,select,textarea,button.b{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}textarea{width:100%;min-height:110px}
+button.b{background:var(--pr);color:#fff;border:0;cursor:pointer}button.g{background:none;color:var(--pr)}
+table{border-collapse:collapse;width:100%}td,th{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left}.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.bar{background:var(--pr);height:14px;border-radius:4px}.out{white-space:pre-wrap}.hi{color:#d33;font-weight:600}.mut{color:var(--mut)}
+#login{max-width:320px;margin:15vh auto}#login input{width:100%;margin-bottom:8px}.cell{cursor:pointer;min-width:90px;font-size:12px}
+</style></head><body><div id="app"></div><script>
+let T=localStorage.t,U=null;const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api=async(p,m='GET',b)=>{const r=await fetch('/api/'+p,{method:m,headers:{'Content-Type':'application/json',Authorization:'Bearer '+T},body:b?JSON.stringify(b):undefined});
+ const d=await r.json().catch(()=>({}));if(r.status===401&&p!=='login'){logout();return}if(!r.ok)throw new Error(d.error||'Error');return d};
+const go=async f=>{try{await f()}catch(e){alert(e.message)}};
+const logout=()=>{localStorage.removeItem('t');T=null;login()};
+function login(){$('#app').innerHTML=`<div id="login" class="card"><h2>Aula Digital</h2><input id="u" placeholder="Usuario"><input id="p" type="password" placeholder="Contraseña"><button class="b" style="width:100%" id="go">Ingresar</button></div>`;
+ const f=()=>go(async()=>{const d=await api('login','POST',{username:$('#u').value,password:$('#p').value});T=d.token;localStorage.t=T;U=d.user;shell()});
+ $('#go').onclick=f;$('#p').onkeydown=e=>e.key==='Enter'&&f()}
+const V={dashboard:['Panel',dash],alumnos:['Alumnos',alumnos],asistencia:['Asistencia',asist],notas:['Notas',notas],horarios:['Horarios',horarios],ia:['IA docente',ia],materiales:['Materiales',mats],alertas:['Alertas',alertas],usuarios:['Usuarios',usuarios]};
+async function shell(){if(!U)U=await api('me');if(!U)return;
+ $('#app').innerHTML=`<nav>${Object.entries(V).filter(([k])=>k!=='usuarios'||U.role==='admin').map(([k,v])=>`<button data-k="${k}">${v[0]}</button>`).join('')}<span style="flex:1"></span><span class="mut">${esc(U.name)}</span><button id="out">Salir</button></nav><main id="m"></main>`;
+ document.querySelectorAll('nav [data-k]').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');go(V[b.dataset.k][1])});
+ $('#out').onclick=logout;document.querySelector('[data-k=dashboard]').click()}
+const courses=async()=>[...new Set((await api('students')).map(s=>s.course).filter(Boolean))];
+const opts=a=>a.map(x=>`<option>${esc(x)}</option>`).join('');
+async function dash(){const d=await api('dashboard');const gr=Object.entries(d.grades).map(([k,v])=>[k,+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2)]);
+ $('#m').innerHTML=`<div class="card"><h3>Alumnos registrados: ${d.students}</h3></div><div class="card"><h3>Presentismo por curso (%)</h3>${d.attendance.map(a=>`<div>${esc(a.label)} — ${a.value}%<div class="bar" style="width:${a.value}%"></div></div>`).join('')||'<p class="mut">Sin datos aún</p>'}</div>
+ <div class="card"><h3>Promedio por materia</h3>${gr.map(([k,v])=>`<div>${esc(k)} — ${v}<div class="bar" style="width:${v*10}%"></div></div>`).join('')||'<p class="mut">Sin datos aún</p>'}</div>`}
+async function alumnos(){const l=await api('students');
+ $('#m').innerHTML=`<div class="card"><h3>Nuevo alumno</h3><div class="row"><input id="n" placeholder="Nombre y apellido"><input id="d" placeholder="DNI"><input id="c" placeholder="Curso (ej. 3°A)"></div>
+ <div class="row"><input id="al" placeholder="Alergias"><input id="ad" placeholder="Adaptaciones curriculares"><input id="h" placeholder="Historial académico"></div><button class="b" id="add">Agregar</button>
+ <hr><p class="mut">Importar CSV (columnas: nombre, dni, curso, alergias, adaptaciones, historial)</p><input type="file" id="f" accept=".csv,.txt"></div>
+ <div class="card"><table><tr><th>Nombre</th><th>DNI</th><th>Curso</th><th>Alergias</th><th>Adaptaciones</th><th>Historial</th><th></th></tr>${l.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.dni)}</td><td>${esc(s.course)}</td><td>${esc(s.allergies)}</td><td>${esc(s.adaptations)}</td><td>${esc(s.history)}</td><td><button class="g" data-e="${s.id}">Editar</button><button class="g" data-x="${s.id}">Borrar</button></td></tr>`).join('')}</table></div>`;
+ $('#add').onclick=()=>go(async()=>{await api('students','POST',{name:$('#n').value,dni:$('#d').value,course:$('#c').value,allergies:$('#al').value,adaptations:$('#ad').value,history:$('#h').value});alumnos()});
+ $('#f').onchange=e=>{const r=new FileReader();r.onload=()=>go(async()=>{const ls=r.result.split(/\r?\n/).filter(x=>x.trim()),sep=ls[0].includes(';')?';':',';
+  const hd=ls[0].split(sep).map(x=>x.trim().toLowerCase());const k=(row,...n)=>{for(const x of n){const i=hd.indexOf(x);if(i>=0)return(row[i]||'').trim()}return''};
+  const rows=ls.slice(1).map(x=>x.split(sep)).map(c=>({name:k(c,'nombre','name'),dni:k(c,'dni'),course:k(c,'curso','course'),allergies:k(c,'alergias'),adaptations:k(c,'adaptaciones'),history:k(c,'historial')}));
+  const d=await api('students','POST',rows);alert(d.ok+' filas importadas');alumnos()});r.readAsText(e.target.files[0])};
+ document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>confirm('¿Borrar?')&&go(async()=>{await api('students/'+b.dataset.x,'DELETE');alumnos()}));
+ document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>go(async()=>{const s=l.find(x=>x.id==b.dataset.e);const p=(t,v)=>prompt(t,v);
+  const n={...s,name:p('Nombre',s.name),dni:p('DNI',s.dni),course:p('Curso',s.course),allergies:p('Alergias',s.allergies),adaptations:p('Adaptaciones',s.adaptations),history:p('Historial',s.history)};
+  await api('students/'+s.id,'PUT',n);alumnos()}))}
+async function asist(){const cs=await courses();
+ $('#m').innerHTML=`<div class="card"><div class="row"><select id="c">${opts(cs)}</select><input type="date" id="dt" value="${new Date().toISOString().slice(0,10)}"><button class="b" id="ld">Cargar</button></div><div id="t"></div></div>`;
+ $('#ld').onclick=()=>go(async()=>{const l=await api(`attendance?course=${encodeURIComponent($('#c').value)}&date=${$('#dt').value}`);
+  $('#t').innerHTML=`<table>${l.map(s=>`<tr data-id="${s.id}"><td>${esc(s.name)}</td><td><select>${[['P','Presente'],['A','Ausente'],['T','Tardanza']].map(([v,t])=>`<option value="${v}" ${(s.status||'P')===v?'selected':''}>${t}</option>`).join('')}</select></td><td><input placeholder="Justificación" value="${esc(s.note)}"></td></tr>`).join('')}</table><button class="b" id="sv">Guardar</button>`;
+  $('#sv').onclick=()=>go(async()=>{await api('attendance','POST',{date:$('#dt').value,records:[...document.querySelectorAll('#t tr')].map(r=>({id:r.dataset.id,status:r.querySelector('select').value,note:r.querySelector('input').value}))});alert('Guardado')})});}
+async function notas(){const cs=await courses();
+ $('#m').innerHTML=`<div class="card"><div class="row"><select id="c">${opts(cs)}</select><input id="s" placeholder="Materia"><button class="b" id="ld">Cargar</button></div><div id="t"></div></div>`;
+ $('#ld').onclick=()=>go(async()=>{const subj=$('#s').value,l=await api(`gradebook?course=${encodeURIComponent($('#c').value)}&subject=${encodeURIComponent(subj)}`);
+  $('#t').innerHTML=`<div class="row"><input id="ti" placeholder="Título (ej. TP 1)"><select id="sc"><option value="numerica">Numérica (1-10)</option><option value="conceptual">Conceptual (MB/B/R/I)</option></select></div>
+  <table><tr><th>Alumno</th><th>Notas</th><th>Promedio</th><th>Nueva</th></tr>${l.map(s=>`<tr data-id="${s.id}"><td>${esc(s.name)}</td><td>${s.grades.map(g=>`<span title="${esc(g.title)}">${esc(g.value)}<a href="#" data-g="${g.id}" style="color:#d33;text-decoration:none"> ×</a></span>`).join(' | ')}</td><td><b>${s.avg??'-'}</b></td><td><input size="4"></td></tr>`).join('')}</table><button class="b" id="sv">Guardar notas</button>`;
+  $('#sv').onclick=()=>go(async()=>{await api('grades','POST',{subject:subj,title:$('#ti').value||'Nota',scale:$('#sc').value,grades:[...document.querySelectorAll('#t tr[data-id]')].map(r=>({student_id:r.dataset.id,value:r.querySelector('input').value.trim()}))});$('#ld').click()});
+  document.querySelectorAll('[data-g]').forEach(a=>a.onclick=e=>{e.preventDefault();go(async()=>{await api('grades/'+a.dataset.g,'DELETE');$('#ld').click()})})})}
+async function horarios(){const[cs,us,sc]=await Promise.all([courses(),api('users'),api('schedule')]);const D=['Lun','Mar','Mié','Jue','Vie'];
+ $('#m').innerHTML=`<div class="card"><div class="row"><select id="c">${opts(cs)}</select><span class="mut">${U.role==='admin'?'Clic en una celda para asignar/quitar':'Solo el administrador edita'}</span></div><div id="t"></div></div>`;
+ const draw=()=>{const c=$('#c').value;$('#t').innerHTML=`<table><tr><th></th>${D.map(d=>`<th>${d}</th>`).join('')}</tr>${[1,2,3,4,5,6,7,8].map(h=>`<tr><th>${h}ª</th>${D.map((_,i)=>{const x=sc.find(z=>z.course===c&&z.day===i+1&&z.slot===h);return`<td class="cell" data-d="${i+1}" data-h="${h}" data-id="${x?.id||''}">${x?`<b>${esc(x.subject)}</b><br>${esc(x.teacher)}`:''}</td>`}).join('')}</tr>`).join('')}</table>`;
+  if(U.role==='admin')document.querySelectorAll('.cell').forEach(t=>t.onclick=()=>go(async()=>{
+   if(t.dataset.id){if(confirm('¿Quitar?'))await api('schedule/'+t.dataset.id,'DELETE')}else{const subject=prompt('Materia');if(!subject)return;
+    const n=prompt('Docente (número):\n'+us.map((u,i)=>`${i+1}) ${u.name}`).join('\n'));const u=us[n-1];if(!u)return;
+    await api('schedule','POST',{course:c,day:+t.dataset.d,slot:+t.dataset.h,subject,teacher_id:u.id})}
+   sc.splice(0,sc.length,...await api('schedule'));draw()}))};
+ $('#c').onchange=draw;draw()}
+async function ia(){const ms=await api('materials');
+ $('#m').innerHTML=`<div class="card"><div class="row"><select id="tool"><option value="planificacion">Planificación de clases</option><option value="flashcards">Flashcards</option><option value="evaluacion">Evaluación (desde programa)</option><option value="adaptacion">Adaptar texto</option></select>
+ <select id="lv"><option value="">Nivel (solo adaptación)</option><option>nivel inicial / lectura fácil</option><option>primaria</option><option>secundaria</option><option>educación especial, frases cortas y pictogramas sugeridos</option></select>
+ <select id="ld"><option value="">Cargar material guardado…</option>${ms.map(m=>`<option value="${m.id}">${esc(m.title)}</option>`).join('')}</select></div>
+ <textarea id="in" placeholder="Tema, curso, duración, objetivos… o pegá el texto/programa"></textarea><div class="row"><button class="b" id="gen">Generar</button></div><div class="card out" id="o"></div><div class="row"><input id="tt" placeholder="Título para guardar"><button class="b" id="sv">Guardar en materiales</button></div></div>`;
+ $('#ld').onchange=()=>{const m=ms.find(x=>x.id==$('#ld').value);if(m)$('#in').value=m.content};
+ $('#gen').onclick=()=>go(async()=>{$('#o').textContent='Generando…';const lv=$('#lv').value;const d=await api('ai/'+$('#tool').value,'POST',{input:($('#tool').value==='adaptacion'&&lv?'Nivel destino: '+lv+'\n':'')+$('#in').value});$('#o').textContent=d.text});
+ $('#sv').onclick=()=>go(async()=>{await api('materials','POST',{title:$('#tt').value||'Sin título',type:$('#tool').value,content:$('#o').textContent});alert('Guardado');ia()})}
+async function mats(){const ms=await api('materials');
+ $('#m').innerHTML=ms.map(m=>`<div class="card"><b>${esc(m.title)}</b> <span class="mut">${esc(m.type)} · ${esc(m.created)}</span><div class="out">${esc(m.content.slice(0,400))}…</div><button class="g" data-p="${m.id}">Imprimir/PDF</button><button class="g" data-x="${m.id}">Borrar</button></div>`).join('')||'<p class="mut">Aún no hay materiales</p>';
+ document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>go(async()=>{await api('materials/'+b.dataset.x,'DELETE');mats()}));
+ document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const m=ms.find(x=>x.id==b.dataset.p),w=open('');w.document.write(`<pre style="font:14px sans-serif;white-space:pre-wrap"><h2>${esc(m.title)}</h2>${esc(m.content)}</pre>`);w.print()})}
+async function alertas(){const l=await api('risk');
+ $('#m').innerHTML=`<div class="card"><h3>Alertas tempranas</h3><p class="mut">Se calculan con asistencia (&gt;20% de faltas) y promedio (&lt;6).</p><table>${l.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.course)}</td><td class="${r.level==='Alto'?'hi':''}">${r.level}</td><td>${r.factors.join(', ')}</td></tr>`).join('')||'<tr><td>Sin alumnos en riesgo</td></tr>'}</table></div>`}
+async function usuarios(){const l=await api('users');
+ $('#m').innerHTML=`<div class="card"><h3>Nuevo usuario</h3><div class="row"><input id="n" placeholder="Nombre"><input id="u" placeholder="Usuario"><input id="p" placeholder="Contraseña"><select id="r"><option value="docente">Docente</option><option value="admin">Administrador</option></select><button class="b" id="add">Crear</button></div></div>
+ <div class="card"><table>${l.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${u.role}</td><td><button class="g" data-k="${u.id}">Cambiar clave</button><button class="g" data-x="${u.id}">Borrar</button></td></tr>`).join('')}</table></div>`;
+ $('#add').onclick=()=>go(async()=>{await api('users','POST',{name:$('#n').value,username:$('#u').value,password:$('#p').value,role:$('#r').value});usuarios()});
+ document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>confirm('¿Borrar?')&&go(async()=>{await api('users/'+b.dataset.x,'DELETE');usuarios()}));
+ document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>go(async()=>{const p=prompt('Nueva contraseña');if(p){await api(`users/${b.dataset.k}/password`,'PUT',{password:p});alert('Listo')}}))}
+T?shell():login();
+</script></body></html>
