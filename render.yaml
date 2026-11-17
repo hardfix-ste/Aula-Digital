@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: aula-digital
+    runtime: node
+    plan: starter        # el plan gratuito no permite disco persistente
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DB_PATH
+        value: /data/data.db
+    disk:
+      name: datos
+      mountPath: /data
+      sizeGB: 1
