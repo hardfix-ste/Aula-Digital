@@ -1,0 +1,3 @@
+# Configuración para la CLI de Supabase (supabase functions deploy)
+[functions.admin-users]
+verify_jwt = true
