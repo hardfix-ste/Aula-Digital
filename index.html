@@ -1,180 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#17243a">
-<title>Aula Digital | Gestión Educativa</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0"></script>
-<style>
-:root{--navy:#17243a;--blue:#3678d8;--light:#f3f6fb;--text:#202b3d;--muted:#7b8798;--border:#e5eaf1;--green:#16875b;--red:#c74646}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--light);color:var(--text)}
-button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-#loginScreen{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;background:linear-gradient(140deg,#17243a,#284a78)}
-.login-card{background:white;width:100%;max-width:420px;padding:38px;border-radius:18px;box-shadow:0 20px 60px #0003}
-.brand{display:flex;align-items:center;gap:12px}.brand-icon{background:#e8f0ff;color:var(--blue);width:46px;height:46px;display:grid;place-items:center;border-radius:13px;font-size:24px}
-.brand h1{margin:0;font-size:22px}.brand small{color:var(--muted)}.login-card h2{margin-top:35px}
-.field{margin:17px 0}.field label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
-.field input{width:100%;border:1px solid var(--border);border-radius:9px;padding:13px;outline:none}.field input:focus{border-color:var(--blue)}
-.primary{background:var(--blue);color:white;border:0;padding:12px 18px;border-radius:9px;font-weight:600}.primary:hover{background:#2866bd}.primary:disabled{opacity:.5;cursor:wait}
-.full{width:100%}.message{font-size:13px;margin-top:14px;color:var(--red)}.subtitle{color:var(--muted);font-size:13px}
-#app{min-height:100vh}.topbar{background:var(--navy);color:white;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;gap:15px}
-.topbar .brand-icon{background:#ffffff18;color:white}.topbar .brand small{color:#c4d0e0}.user-info{display:flex;align-items:center;gap:12px;font-size:13px}
-.logout{border:1px solid #ffffff55;color:white;background:transparent;padding:9px 13px;border-radius:8px}
-.layout{display:flex;max-width:1450px;margin:auto;min-height:calc(100vh - 76px)}.sidebar{width:240px;background:white;border-right:1px solid var(--border);padding:25px 15px}
-.sidebar-label{color:var(--muted);font-size:11px;font-weight:700;padding:10px;text-transform:uppercase}
-.nav-item{display:block;width:100%;text-align:left;background:transparent;border:0;padding:12px;margin:3px 0;border-radius:8px;color:#536176}
-.nav-item.active,.nav-item:hover{background:#edf3ff;color:var(--blue)}.nav-item:disabled{opacity:.5;cursor:not-allowed}
-.content{flex:1;padding:30px;min-width:0}.heading{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-.heading h2{margin:0 0 7px;font-size:25px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:27px 0}
-.stat,.panel{background:white;border:1px solid var(--border);border-radius:12px;padding:20px}.stat-label{color:var(--muted);font-size:13px}
-.stat-number{font-size:29px;font-weight:700;margin-top:9px}.panel{margin-bottom:20px}.panel h3{margin:0 0 18px}
-.toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:17px}
-.toolbar input{padding:11px;border:1px solid var(--border);border-radius:8px;min-width:220px}
-.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:560px}
-th,td{padding:14px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:13px}
-th{color:var(--muted);font-weight:600}.status{display:inline-block;border-radius:20px;padding:5px 9px;font-size:11px;font-weight:700}
-.active-status{background:#e5f6ed;color:var(--green)}.suspended-status{background:#fdeaea;color:var(--red)}
-.actions{display:flex;gap:7px}.small-btn{border:1px solid var(--border);padding:7px 9px;background:white;border-radius:7px;font-size:12px}
-.small-btn:hover{background:var(--light)}.modal{position:fixed;inset:0;background:#10182799;display:flex;justify-content:center;align-items:center;padding:15px;z-index:5}
-.modal-card{background:white;padding:25px;border-radius:14px;width:100%;max-width:500px;max-height:90vh;overflow:auto}
-.modal-header{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:none;font-size:24px}
-.empty{text-align:center;color:var(--muted);padding:35px}
-@media(max-width:800px){.layout{display:block}.sidebar{width:100%;display:flex;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid var(--border)}
-.sidebar-label{display:none}.nav-item{white-space:nowrap;width:auto}.content{padding:20px 14px}.stats{grid-template-columns:1fr}
-.topbar{padding:12px}.user-info span{display:none}}
-</style>
-</head>
-<body>
-<section id="loginScreen">
- <div class="login-card">
-  <div class="brand"><div class="brand-icon">🎓</div><div><h1>Aula Digital</h1><small>Gestión educativa inteligente</small></div></div>
-  <h2>Bienvenido</h2><p class="subtitle">Ingresá con tu cuenta autorizada.</p>
-  <form id="loginForm">
-   <div class="field"><label>Correo electrónico</label><input id="email" type="email" required autocomplete="username" placeholder="correo@institucion.edu"></div>
-   <div class="field"><label>Contraseña</label><input id="password" type="password" required autocomplete="current-password" placeholder="Tu contraseña"></div>
-   <button class="primary full" id="loginButton" type="submit">Iniciar sesión</button><div id="loginMessage" class="message"></div>
-  </form>
- </div>
-</section>
-<section id="app" class="hidden">
- <header class="topbar">
-  <div class="brand"><div class="brand-icon">🎓</div><div><h1>Aula Digital</h1><small>Administración general</small></div></div>
-  <div class="user-info"><span id="userEmail"></span><button class="logout" id="logoutButton">Salir</button></div>
- </header>
- <div class="layout">
-  <aside class="sidebar"><div class="sidebar-label">Administración</div>
-   <button class="nav-item active">🏫 Instituciones</button>
-   <button class="nav-item" disabled>👥 Usuarios (próximamente)</button>
-   <button class="nav-item" disabled>📊 Estadísticas</button>
-   <button class="nav-item" disabled>⚙️ Configuración</button>
-  </aside>
-  <main class="content">
-   <div class="heading"><div><h2>Instituciones educativas</h2><div class="subtitle">Administrá las instituciones de Aula Digital.</div></div><button class="primary" id="newInstitution">+ Nueva institución</button></div>
-   <div class="stats">
-    <div class="stat"><div class="stat-label">Total de instituciones</div><div class="stat-number" id="totalCount">0</div></div>
-    <div class="stat"><div class="stat-label">Instituciones activas</div><div class="stat-number" id="activeCount">0</div></div>
-    <div class="stat"><div class="stat-label">Instituciones suspendidas</div><div class="stat-number" id="suspendedCount">0</div></div>
-   </div>
-   <div class="panel"><div class="toolbar"><h3>Listado de instituciones</h3><input id="search" type="search" placeholder="Buscar institución..."></div>
-    <div class="table-wrap"><table><thead><tr><th>Institución</th><th>Código</th><th>Localidad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="institutionRows"></tbody></table></div>
-    <div id="emptyMessage" class="empty hidden">Todavía no hay instituciones registradas.</div>
-   </div>
-  </main>
- </div>
-</section>
-<div id="institutionModal" class="modal hidden">
- <div class="modal-card"><div class="modal-header"><h3 id="modalTitle">Nueva institución</h3><button class="close" id="closeModal">×</button></div>
-  <form id="institutionForm"><input type="hidden" id="institutionId">
-   <div class="field"><label>Nombre de la institución *</label><input id="institutionName" required maxlength="150"></div>
-   <div class="field"><label>Código institucional *</label><input id="institutionCode" required maxlength="30"></div>
-   <div class="field"><label>Dirección</label><input id="institutionAddress"></div>
-   <div class="field"><label>Localidad</label><input id="institutionCity"></div>
-   <div class="field"><label>Provincia</label><input id="institutionProvince"></div>
-   <div class="field"><label>Correo electrónico</label><input id="institutionEmail" type="email"></div>
-   <div class="field"><label>Teléfono</label><input id="institutionPhone"></div>
-   <button class="primary full" id="saveButton" type="submit">Guardar institución</button><div id="formMessage" class="message"></div>
-  </form>
- </div>
-</div>
-<script>
-const SUPABASE_URL="https://nmuswfvgzkouivvklocy.supabase.co";
-const SUPABASE_KEY="sb_publishable_jSkJ43SgaEHF3wACK4A5DA_pFigGPr1";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const $=id=>document.getElementById(id);
-let currentUser=null,institutions=[];
-function show(el){el.classList.remove("hidden")}function hide(el){el.classList.add("hidden")}
-function message(id,text){$(id).textContent=text}
-function openModal(item=null){
- $("institutionForm").reset();message("formMessage","");$("institutionId").value=item?.id||"";
- $("modalTitle").textContent=item?"Editar institución":"Nueva institución";
- if(item){$("institutionName").value=item.name;$("institutionCode").value=item.code;$("institutionAddress").value=item.address||"";$("institutionCity").value=item.city||"";$("institutionProvince").value=item.province||"";$("institutionEmail").value=item.email||"";$("institutionPhone").value=item.phone||""}
- show($("institutionModal"));
-}
-function closeModal(){hide($("institutionModal"))}
-async function logAction(action,institutionId,details={}){
- const {error}=await db.from("audit_logs").insert({actor_id:currentUser.id,institution_id:institutionId,action,details});
- if(error)console.error("Auditoría:",error.message);
-}
-async function loadInstitutions(){
- const {data,error}=await db.from("institutions").select("*").order("name");
- if(error){alert("Error al cargar instituciones: "+error.message);return}
- institutions=data||[];renderInstitutions();
-}
-function renderInstitutions(){
- const query=$("search").value.toLowerCase(),filtered=institutions.filter(item=>[item.name,item.code,item.city].some(v=>(v||"").toLowerCase().includes(query)));
- $("institutionRows").replaceChildren();$("emptyMessage").classList.toggle("hidden",filtered.length>0);
- $("totalCount").textContent=institutions.length;$("activeCount").textContent=institutions.filter(i=>i.status==="active").length;$("suspendedCount").textContent=institutions.filter(i=>i.status==="suspended").length;
- filtered.forEach(item=>{
-  const tr=document.createElement("tr");
-  const cell=value=>{const td=document.createElement("td");td.textContent=value||"—";return td};
-  tr.append(cell(item.name),cell(item.code),cell(item.city));
-  const statusCell=cell("");const badge=document.createElement("span");badge.className="status "+(item.status==="active"?"active-status":"suspended-status");badge.textContent=item.status==="active"?"Activa":"Suspendida";statusCell.append(badge);tr.append(statusCell);
-  const actions=cell("");const wrapper=document.createElement("div");wrapper.className="actions";
-  const edit=document.createElement("button");edit.className="small-btn";edit.textContent="Editar";edit.addEventListener("click",()=>openModal(item));
-  const toggle=document.createElement("button");toggle.className="small-btn";toggle.textContent=item.status==="active"?"Suspender":"Activar";toggle.addEventListener("click",()=>toggleInstitution(item));
-  wrapper.append(edit,toggle);actions.append(wrapper);tr.append(actions);$("institutionRows").append(tr);
- });
-}
-async function saveInstitution(event){
- event.preventDefault();const id=$("institutionId").value;
- const record={name:$("institutionName").value.trim(),code:$("institutionCode").value.trim().toUpperCase(),address:$("institutionAddress").value.trim()||null,city:$("institutionCity").value.trim()||null,province:$("institutionProvince").value.trim()||null,email:$("institutionEmail").value.trim()||null,phone:$("institutionPhone").value.trim()||null,updated_at:new Date().toISOString()};
- if(!record.name||!record.code)return;$("saveButton").disabled=true;message("formMessage","Guardando...");
- const result=id?await db.from("institutions").update(record).eq("id",id).select().single():await db.from("institutions").insert(record).select().single();
- $("saveButton").disabled=false;
- if(result.error){message("formMessage","Error: "+result.error.message);return}
- await logAction(id?"institution_updated":"institution_created",result.data.id,{name:record.name});closeModal();await loadInstitutions();
-}
-async function toggleInstitution(item){
- const next=item.status==="active"?"suspended":"active";
- if(!confirm(`¿Querés ${next==="active"?"activar":"suspender"} ${item.name}?`))return;
- const {error}=await db.from("institutions").update({status:next,updated_at:new Date().toISOString()}).eq("id",item.id);
- if(error){alert("No se pudo actualizar: "+error.message);return}
- await logAction("institution_status_changed",item.id,{status:next});await loadInstitutions();
-}
-async function enterApplication(session){
- if(!session){currentUser=null;hide($("app"));show($("loginScreen"));return}
- currentUser=session.user;
- if(currentUser.app_metadata?.role!=="super_admin"){
-  await db.auth.signOut();hide($("app"));show($("loginScreen"));message("loginMessage","Tu cuenta no tiene permisos de administrador general.");return;
- }
- $("userEmail").textContent=currentUser.email||"";hide($("loginScreen"));show($("app"));await loadInstitutions();
-}
-$("loginForm").addEventListener("submit",async event=>{
- event.preventDefault();const button=$("loginButton");button.disabled=true;message("loginMessage","Verificando acceso...");
- const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
- button.disabled=false;if(error){message("loginMessage","No se pudo iniciar sesión. Revisá tus datos.");return}await enterApplication(data.session);
-});
-$("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();currentUser=null;hide($("app"));show($("loginScreen"))});
-$("newInstitution").addEventListener("click",()=>openModal());$("closeModal").addEventListener("click",closeModal);
-$("institutionForm").addEventListener("submit",saveInstitution);$("search").addEventListener("input",renderInstitutions);
-$("institutionModal").addEventListener("click",event=>{if(event.target===$("institutionModal"))closeModal()});
-async function start(){
- const {data,error}=await db.auth.getSession();if(error){message("loginMessage","Error al verificar la sesión.");return}
- await enterApplication(data.session);
- db.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){currentUser=null;hide($("app"));show($("loginScreen"))}});
-}
-start();
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1d4ed8" />
+    <title>AULA DIGITAL</title>
+    <script>
+      // Restaura la ruta original tras la redirección de 404.html (GitHub Pages)
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function (s) { return s.replace(/~and~/g, '&'); }).join('?');
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+        }
+      })(window.location);
+      // Tema claro/oscuro antes de pintar (evita parpadeo)
+      try {
+        var t = localStorage.getItem('aula-theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
